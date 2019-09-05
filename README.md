@@ -37,10 +37,6 @@ To get the `GT` field:
 ```java
 Field GT = pairing.getGT();
 ```
-We can get the degree of a pairing as following: **(???)**
-```java
-int order = pairing.getDegree();
-```
 #### Field object
 In Type-A curves, all fields have the same order.
 ```java
