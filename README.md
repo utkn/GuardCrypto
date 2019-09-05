@@ -1,4 +1,4 @@
-### JPBC Documentation
+### JPBC Documentation (WIP)
 #### Overview
 In order to generate the pairing, first we need to generate the parameters like `r` and `q`.
 To generate the parameters, we use a `PairingParametersGenerator` as following:
