@@ -6,7 +6,7 @@ To generate the parameters, we use a `PairingParametersGenerator` as following:
 PairingParametersGenerator pg = new TypeACurveGenerator(rBits, qBits);
 PairingParameters parameters = pg.generate();
 ```
-Here, `rBits` and `qBits` denote the number of bits those parameters will have.
+Here, `rBits` and `qBits` denote the number of bits those parameters will have (minimum is 2).
 In the second line, we generate the parameters using the parameter generator.
 Then, we can simply create a `Pairing` from the parameters using the `PairingFactory` factory class, as following:
 ```java

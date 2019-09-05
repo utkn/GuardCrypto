@@ -38,6 +38,7 @@ public class CryptoHelpers {
         params.G = this.pairing.getG1();
         params.GT = this.pairing.getGT();
         params.g = params.G.newRandomElement();
+        // TODO complete
         return params;
     }
 
