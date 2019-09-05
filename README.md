@@ -73,3 +73,5 @@ el1.invert(); // Multiplicative inversion
 el1.negate(); // Additive inversion
 el1.pow(BigInteger.valueOf(x)); // Exponentiation (el^x)
 ```
+#### Vector object
+[WIP]
