@@ -6,7 +6,7 @@ import it.unisa.dia.gas.jpbc.PairingParameters;
 import it.unisa.dia.gas.jpbc.PairingParametersGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
-import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeAPairing;
+import it.unisa.dia.gas.plaf.jpbc.pairing.parameters.PropertiesParameters;
 
 public class CryptoHelpers {
 
@@ -24,6 +24,7 @@ public class CryptoHelpers {
             throw new Exception("Parameters are already generated");
         }
         PairingParametersGenerator pg = new TypeACurveGenerator(rBits, qBits);
+
         this.parameters = pg.generate();
         this.pairing = PairingFactory.getPairing(this.parameters);
         this.generated = true;

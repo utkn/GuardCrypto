@@ -43,5 +43,33 @@ int order = pairing.getDegree();
 ```
 #### Field object
 In Type-A curves, all fields have the same order.
+```java
+int order = field.getOrder();
+```
+We can get certain elements from the field as well:
+```java
+Element zero = field.newZeroElement();
+Element one = field.newOneElement();
+Element random = field.newRandomElement();
+```
 #### Element object
-`Element`s denote an element from the groups `G1`, `G2` or `GT`.
+`Element`s denote an element from the groups `G1`, `G2` or `GT`. They can be acquired
+using the appropriate methods on a `Field`, as shown above. They can be compared as well:
+```java
+element.isOne(); // Returns true iff element is 1.
+element.isZero(); // Returns true iff element is 0.
+el1.compareTo(el2); // Returns int(el1 - el2)
+```
+Of course, we can perform arithmetic operations on the elements.
+```java
+el1.add(el2); // Addition
+el1.sub(el2); // Subtraction
+el1.mul(el2); // Multiplication
+el1.mul(5); // Multiplication with an integer
+el1.div(el2); // Division
+el1.twice(); // Multiply by 2
+el1.halve(); // Divide by 2
+el1.invert(); // Multiplicative inversion
+el1.negate(); // Additive inversion
+el1.pow(BigInteger.valueOf(x)); // Exponentiation (el^x)
+```
