@@ -12,6 +12,6 @@ public class PublicParameters {
     Element g2;
     Element uPrime;
     Element mPrime;
-    Vector U;
-    Vector M;
+    Element[] U;
+    Element[] M;
 }

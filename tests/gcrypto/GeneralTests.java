@@ -1,22 +1,17 @@
 package gcrypto;
 
-import it.unisa.dia.gas.jpbc.PairingParameters;
+import it.unisa.dia.gas.jpbc.Element;
+import it.unisa.dia.gas.jpbc.Field;
+import it.unisa.dia.gas.jpbc.Pairing;
+import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.parameters.PropertiesParameters;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import sun.jvm.hotspot.utilities.Assert;
 
 import java.math.BigInteger;
 
 public class GeneralTests {
-    @Test
-    public void bitsTest() {
-        for(int i = 4; i <= 20; i++) {
-            System.out.println("Testing r bits=" + i);
-            bitsTestHelper(i);
-        }
-    }
 
     // Assert that r is a prime factor of q+1.
     @Test
@@ -30,23 +25,17 @@ public class GeneralTests {
         Assertions.assertTrue(rInt.isProbablePrime(10));
     }
 
-    public void bitsTestHelper(int rBits) {
+    // Assert that the elements of the G1 are generators.
+    @Test
+    public void generatorTest() {
         TypeACurveGenerator generator = new TypeACurveGenerator(160, 512);
         PropertiesParameters params = (PropertiesParameters)generator.generate();
-        BigInteger rInt = params.getBigInteger("r");
-        BigInteger qInt = params.getBigInteger("q");
-        BigInteger maxR = maxValue(160);
-        BigInteger maxQ = maxValue(512);
-        System.out.println("r=" + rInt + " max=" + maxR);
-        System.out.println("q=" + qInt + " max=" + maxQ);
-        Assertions.assertTrue(rInt.compareTo(maxR) <= 0);
-        Assertions.assertTrue(qInt.compareTo(maxQ) <= 0);
-//        q bits do not conform!
-    }
-
-    // Returns the maximum decimal value an unsigned bit-array with given length can take.
-    private BigInteger maxValue(int bits) {
-        // 2^n-1
-        return BigInteger.valueOf(2).pow(bits).subtract(BigInteger.ONE);
+        Pairing pairing = PairingFactory.getPairing(params);
+        Field g1 = pairing.getG1();
+        BigInteger order = g1.getOrder();
+        for(int i = 0; i < 100; i++) {
+            Element g = g1.newRandomElement();
+            Assertions.assertTrue(g.pow(order).isOne());
+        }
     }
 }
