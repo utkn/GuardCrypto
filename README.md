@@ -1,4 +1,6 @@
-### JPBC Documentation (WIP)
+### GuardCrypto Documentation
+Please click [here](https://github.com/utkn/GuardCrypto/blob/master/DOCS.md) to go to the main documentation.
+### JPBC Documentation
 #### Overview
 In order to generate the pairing, first we need to generate the parameters like `r` and `q`.
 To generate the parameters, we use a `PairingParametersGenerator` as following:
