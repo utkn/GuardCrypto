@@ -4,7 +4,10 @@ import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 import it.unisa.dia.gas.jpbc.Vector;
 
+
 public class PublicParameters {
+    // ** Please note that all the elements are `immutable`.
+
     // Input field.
     Field G;
     // Output field.

@@ -37,6 +37,10 @@ public class Scheme {
         this.pairing = PairingFactory.getPairing(this.parameters);
     }
 
+    /**
+     * Returns a random integer that is smaller than the order of the input group G.
+     * @return a random integer mod p, where p is the order of G.
+     */
     private BigInteger chooseRandom() {
         BigInteger order = this.pairing.getG1().getOrder();
         BigInteger alpha;
@@ -49,6 +53,14 @@ public class Scheme {
         return alpha;
     }
 
+    /**
+     * Calculates the following value: coeff*􏰂(Vector[i_1]*Vector[i_2]*Vector[i_3]*...*Vector[i_n]) where
+     * i_1, i_2, i_3, ..., i_n are the indexes where bits[i_j]= 1
+     * @param bits can be message or identity.
+     * @param coeff can be either u_prime or m_prime.
+     * @param vector can be either U or M.
+     * @return the calculated value.
+     */
     private Element calculateMultiplier(String bits, Element coeff, Element[] vector) {
         Element b = coeff.getImmutable();
         for(int i = 0; i < bits.length(); i++) {
@@ -59,17 +71,22 @@ public class Scheme {
         return b.getImmutable();
     }
 
+    // For debugging purposes.
     public BigInteger getAlpha() {
         return alpha;
     }
 
+    // For debugging purposes.
     public Element getMasterSecret() {
         return masterSecret;
     }
 
+    // For debugging purposes.
     public Element pair(Element a, Element b) {
         return pairing.pairing(a, b);
     }
+
+    // *** Main functions ***
 
     public PublicParameters Setup(Authority authority) {
         this.alpha = chooseRandom();
