@@ -50,13 +50,13 @@ public class Scheme {
     }
 
     private Element calculateMultiplier(String bits, Element coeff, Element[] vector) {
-        Element b = coeff;
+        Element b = coeff.getImmutable();
         for(int i = 0; i < bits.length(); i++) {
             if(bits.charAt(i) == '1') {
                 b = b.mul(vector[i]);
             }
         }
-        return b;
+        return b.getImmutable();
     }
 
     public BigInteger getAlpha() {
@@ -76,10 +76,10 @@ public class Scheme {
         publicParameters.G = pairing.getG1();
         publicParameters.GT = pairing.getGT();
         // We make use of the fact that every element in the input field is a generator.
-        publicParameters.g = publicParameters.G.newRandomElement();
-        publicParameters.g1 = publicParameters.g.pow(alpha);
-        publicParameters.g2 = publicParameters.G.newRandomElement();
-        masterSecret = publicParameters.g2.pow(alpha);
+        publicParameters.g = publicParameters.G.newRandomElement().getImmutable();
+        publicParameters.g1 = publicParameters.g.pow(alpha).getImmutable();
+        publicParameters.g2 = publicParameters.G.newRandomElement().getImmutable();
+        masterSecret = publicParameters.g2.pow(alpha).getImmutable();
         // Use the authority to generate u', m', U and M.
         publicParameters.uPrime = authority.uPrime(publicParameters.G);
         publicParameters.mPrime = authority.mPrime(publicParameters.G);

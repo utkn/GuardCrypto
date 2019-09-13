@@ -7,11 +7,11 @@ import it.unisa.dia.gas.plaf.jpbc.field.vector.VectorElement;
 
 public class Authority {
     public Element mPrime(Field G) {
-        return G.newRandomElement();
+        return G.newRandomElement().getImmutable();
     }
 
     public Element uPrime(Field G) {
-        return G.newRandomElement();
+        return G.newRandomElement().getImmutable();
     }
 
     public Element[] M(Field G, int n_m) {
@@ -25,7 +25,7 @@ public class Authority {
     private Element[] generateRandomVector(Field field, int size) {
         Element[] vector = new Element[size];
         for(int i = 0; i < size; i++) {
-            vector[i] = field.newRandomElement();
+            vector[i] = field.newRandomElement().getImmutable();
         }
         return vector;
     }

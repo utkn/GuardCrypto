@@ -9,11 +9,11 @@ import java.math.BigInteger;
 
 public class SchemeTest {
 
-    Scheme scheme;
-    Authority authority;
+    private Scheme scheme;
+    private Authority authority;
 
-    int identityLength;
-    int messageLength;
+    private int identityLength = 5;
+    private int messageLength = 10;
 
     @BeforeEach
     public void init() throws Exception {
@@ -36,12 +36,6 @@ public class SchemeTest {
         Element masterSecret = scheme.getMasterSecret();
         Assertions.assertTrue(masterSecret.isEqual(p.g2.pow(alpha)));
         Assertions.assertTrue(scheme.pair(masterSecret, p.g2).isEqual(scheme.pair(p.g2, p.g2).pow(alpha)));
-    }
-
-    @Test
-    public void extractTest() {
-        PublicParameters p = scheme.Setup(authority);
-        Pair privateKey = scheme.Extract("00101");
     }
 
     @Test
