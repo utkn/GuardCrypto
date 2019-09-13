@@ -48,8 +48,8 @@ public class SchemeTest {
         String falseIdentity = "01101";
         String falseMsg = "0110011011";
 
-        Pair privateKey = scheme.Extract(identity);
-        Triplet signature = scheme.Sign(message, privateKey);
+        PrivateKey privateKey = scheme.Extract(identity);
+        Signature signature = scheme.Sign(message, privateKey);
 
         Assertions.assertTrue(scheme.Verify(identity, message, signature));
         Assertions.assertFalse(scheme.Verify(identity, falseMsg, signature));

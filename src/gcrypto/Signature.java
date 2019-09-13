@@ -2,13 +2,15 @@ package gcrypto;
 
 import it.unisa.dia.gas.jpbc.Element;
 
-public class Pair {
+public class Signature {
     private Element first;
     private Element second;
+    private Element third;
 
-    public Pair(Element first, Element second) {
+    public Signature(Element first, Element second, Element third) {
         this.first = first;
         this.second = second;
+        this.third = third;
     }
 
     public Element getFirst() {
@@ -17,5 +19,9 @@ public class Pair {
 
     public Element getSecond() {
         return second;
+    }
+
+    public Element getThird() {
+        return third;
     }
 }

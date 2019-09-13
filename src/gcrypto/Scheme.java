@@ -105,7 +105,7 @@ public class Scheme {
         return publicParameters;
     }
 
-    public Pair Extract(String identity) {
+    public PrivateKey Extract(String identity) {
         if(identity.length() != identityLength) {
             System.err.println("Identity length is not correct.");
             return null;
@@ -117,10 +117,10 @@ public class Scheme {
         b = b.pow(r_u);
         a = a.mul(b);
         Element c = publicParameters.g.pow(r_u);
-        return new Pair(a, c);
+        return new PrivateKey(a, c);
     }
 
-    public Triplet Sign(String message, Pair privateKey) {
+    public Signature Sign(String message, PrivateKey privateKey) {
         if(message.length() != messageLength) {
             System.err.print("Message length is not correct.");
             return null;
@@ -133,10 +133,10 @@ public class Scheme {
         a = a.mul(b);
         Element c = privateKey.getSecond();
         Element d = publicParameters.g.pow(r_m);
-        return new Triplet(a, c, d);
+        return new Signature(a, c, d);
     }
 
-    public boolean Verify(String identity, String message, Triplet signature) {
+    public boolean Verify(String identity, String message, Signature signature) {
         if(identity.length() != identityLength || message.length() != messageLength) {
             System.err.println((identity.length() != identityLength) ? "Identity length" : "Message length"
                     + " is not correct.");
