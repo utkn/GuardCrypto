@@ -56,7 +56,8 @@ element.isOne(); // Returns true iff element is 1.
 element.isZero(); // Returns true iff element is 0.
 el1.compareTo(el2); // Returns int(el1 - el2)
 ```
-Of course, we can perform arithmetic operations on the elements.
+Of course, we can perform arithmetic operations on the elements. These operations mutate the
+objects they are applied on. Use `getImmutable` if this is not the desired behavior.
 ```java
 el1.add(el2); // Addition
 el1.sub(el2); // Subtraction
@@ -69,5 +70,3 @@ el1.invert(); // Multiplicative inversion
 el1.negate(); // Additive inversion
 el1.pow(BigInteger.valueOf(x)); // Exponentiation (el^x)
 ```
-#### Vector object
-[WIP]
