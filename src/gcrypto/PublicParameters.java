@@ -9,21 +9,21 @@ public class PublicParameters {
     // ** Please note that all the elements are `immutable`.
 
     // Input field.
-    Field G;
+    public Field G;
     // Output field.
-    Field GT;
+    public Field GT;
     // A random element from G.
-    Element g;
+    public Element g;
     // g to the power alpha.
-    Element g1;
+    public Element g1;
     // A random element from G.
-    Element g2;
+    public Element g2;
     // A random element from G.
-    Element uPrime;
+    public Element uPrime;
     // A random element from G.
-    Element mPrime;
+    public Element mPrime;
     // A vector of random elements from G.
-    Element[] U;
+    public Element[] U;
     // A vector of random elements from G.
-    Element[] M;
+    public Element[] M;
 }

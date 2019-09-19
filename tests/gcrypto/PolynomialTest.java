@@ -1,5 +1,6 @@
 package gcrypto;
 
+import gcrypto.threshold.Polynomial;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +10,13 @@ public class PolynomialTest {
 
     @Test
     public void computeTest() {
+        BigInteger order = BigInteger.valueOf(1000);
         Polynomial polynomial = new Polynomial(new BigInteger[]{
                 BigInteger.valueOf(7),
                 BigInteger.valueOf(4),
                 BigInteger.valueOf(5),
                 BigInteger.valueOf(9)
-        });
+        }, order);
         // x = 1
         BigInteger result = polynomial.compute(BigInteger.valueOf(1));
         Assertions.assertEquals(BigInteger.valueOf(25), result);

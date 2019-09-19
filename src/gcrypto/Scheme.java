@@ -1,5 +1,6 @@
 package gcrypto;
 
+import gcrypto.threshold.Polynomial;
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Pairing;
 import it.unisa.dia.gas.jpbc.PairingParameters;
@@ -13,15 +14,15 @@ import java.security.SecureRandom;
 public class Scheme {
     SecureRandom rand = new SecureRandom();
 
-    private int identityLength; // n_u
-    private int messageLength; // n_m
+    protected int identityLength; // n_u
+    protected int messageLength; // n_m
 
-    private PairingParameters parameters;
-    private Pairing pairing;
-    private BigInteger alpha;
+    protected PairingParameters parameters;
+    protected Pairing pairing;
+    protected BigInteger alpha;
 
-    private Element masterSecret;
-    private PublicParameters publicParameters = new PublicParameters();
+    protected Element masterSecret;
+    protected PublicParameters publicParameters = new PublicParameters();
 
     /**
      * Generates the parameters for the pairing.
@@ -41,7 +42,7 @@ public class Scheme {
      * Returns a random integer that is smaller than the given order.
      * @return a random integer mod p, where p is the order.
      */
-    private BigInteger chooseRandom(BigInteger order) {
+    protected BigInteger chooseRandom(BigInteger order) {
         BigInteger alpha;
         while(true) {
             alpha = new BigInteger(order.bitLength(), rand);
@@ -60,7 +61,7 @@ public class Scheme {
      * @param vector can be either U or M.
      * @return the calculated value.
      */
-    private Element calculateMultiplier(String bits, Element coeff, Element[] vector) {
+    protected Element calculateMultiplier(String bits, Element coeff, Element[] vector) {
         Element b = coeff.getImmutable();
         for(int i = 0; i < bits.length(); i++) {
             if(bits.charAt(i) == '1') {
@@ -68,6 +69,18 @@ public class Scheme {
             }
         }
         return b.getImmutable();
+    }
+
+    // Public for debugging purposes.
+    public Element calculateIdentityMultiplier(String identity) {
+        return calculateMultiplier(identity,
+                publicParameters.uPrime, publicParameters.U);
+    }
+
+    // Public for debugging purposes.
+    public Element calculateMessageMultiplier(String message) {
+        return calculateMultiplier(message,
+                publicParameters.mPrime, publicParameters.M);
     }
 
     // For debugging purposes.
@@ -112,12 +125,11 @@ public class Scheme {
         // Get a random integer mod p where p is the order of the input group.
         BigInteger r_u = chooseRandom(this.pairing.getG1().getOrder());
         Element a = masterSecret;
-        Element b = calculateMultiplier(identity,
-                publicParameters.uPrime, publicParameters.U);
-        b = b.pow(r_u);
-        a = a.mul(b);
-        Element c = publicParameters.g.pow(r_u);
-        return new PrivateKey(a, c);
+        a = a.mul(calculateIdentityMultiplier(identity).pow(r_u));
+        Element b = publicParameters.g.pow(r_u);
+        // a = (g2^alpha) * (identityMultiplier)^r_u
+        // b = g^r_u
+        return new PrivateKey(a, b);
     }
 
     public Signature Sign(String message, PrivateKey privateKey) {
@@ -128,8 +140,7 @@ public class Scheme {
         // Get a random integer mod p where p is the order of the input group.
         BigInteger r_m = chooseRandom(this.pairing.getG1().getOrder());
         Element a = privateKey.getFirst();
-        Element b = calculateMultiplier(message,
-                publicParameters.mPrime, publicParameters.M);
+        Element b = calculateMessageMultiplier(message);
         b = b.pow(r_m);
         a = a.mul(b);
         Element c = privateKey.getSecond();
@@ -138,6 +149,7 @@ public class Scheme {
     }
 
     public boolean Verify(String identity, String message, Signature signature) {
+        // e(signature[1], g) = e(g2, g1)e(identityMultiplier, signature[2])e(messageMultiplier, signature[3])
         if(identity.length() != identityLength || message.length() != messageLength) {
             System.err.println((identity.length() != identityLength) ? "Identity length" : "Message length"
                     + " is not correct.");
@@ -146,26 +158,13 @@ public class Scheme {
         Element leftSide = pairing.pairing(signature.getFirst(), publicParameters.g);
 
         Element rightSide_1 = pairing.pairing(publicParameters.g2, publicParameters.g1);
-        Element rightSide_2_1 = calculateMultiplier(identity, publicParameters.uPrime, publicParameters.U);
+        Element rightSide_2_1 = calculateIdentityMultiplier(identity);
         Element rightSide_2 = pairing.pairing(rightSide_2_1, signature.getSecond());
-        Element rightSide_3_1 = calculateMultiplier(message, publicParameters.mPrime, publicParameters.M);
+        Element rightSide_3_1 = calculateMessageMultiplier(message);
         Element rightSide_3 = pairing.pairing(rightSide_3_1, signature.getThird());
         Element rightSide = rightSide_1.mul(rightSide_2).mul(rightSide_3);
 
         return leftSide.isEqual(rightSide);
-    }
-
-    private Polynomial constructKeyDisPolynomial(int threshold, BigInteger order) {
-        BigInteger[] parameters = new BigInteger[threshold];
-        for(int i = 0; i < threshold; i++) {
-            parameters[i] = chooseRandom(order);
-        }
-        return new Polynomial(parameters);
-    }
-
-    public void KeyDis(PrivateKey privateKey, int servers, int threshold) {
-        Polynomial polynomial = constructKeyDisPolynomial(threshold, this.pairing.getG1().getOrder());
-
     }
 
 }

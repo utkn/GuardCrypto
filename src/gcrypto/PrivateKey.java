@@ -7,15 +7,15 @@ public class PrivateKey {
     private Element second;
 
     public PrivateKey(Element first, Element second) {
-        this.first = first;
-        this.second = second;
+        this.first = first.getImmutable();
+        this.second = second.getImmutable();
     }
 
     public Element getFirst() {
-        return first;
+        return first.getImmutable();
     }
 
     public Element getSecond() {
-        return second;
+        return second.getImmutable();
     }
 }

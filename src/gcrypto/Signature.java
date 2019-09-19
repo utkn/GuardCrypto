@@ -8,20 +8,21 @@ public class Signature {
     private Element third;
 
     public Signature(Element first, Element second, Element third) {
-        this.first = first;
-        this.second = second;
-        this.third = third;
+        this.first = first.getImmutable();
+        this.second = second.getImmutable();
+        this.third = third.getImmutable();
     }
 
     public Element getFirst() {
-        return first;
+        return first.getImmutable();
     }
 
     public Element getSecond() {
-        return second;
+        return second.getImmutable();
     }
 
     public Element getThird() {
-        return third;
+        return third.getImmutable();
     }
+
 }
