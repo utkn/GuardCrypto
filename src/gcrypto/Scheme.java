@@ -38,11 +38,10 @@ public class Scheme {
     }
 
     /**
-     * Returns a random integer that is smaller than the order of the input group G.
-     * @return a random integer mod p, where p is the order of G.
+     * Returns a random integer that is smaller than the given order.
+     * @return a random integer mod p, where p is the order.
      */
-    private BigInteger chooseRandom() {
-        BigInteger order = this.pairing.getG1().getOrder();
+    private BigInteger chooseRandom(BigInteger order) {
         BigInteger alpha;
         while(true) {
             alpha = new BigInteger(order.bitLength(), rand);
@@ -89,7 +88,7 @@ public class Scheme {
     // *** Main functions ***
 
     public PublicParameters Setup(Authority authority) {
-        this.alpha = chooseRandom();
+        this.alpha = chooseRandom(this.pairing.getG1().getOrder());
         publicParameters.G = pairing.getG1();
         publicParameters.GT = pairing.getGT();
         // We make use of the fact that every element in the input field is a generator.
@@ -110,7 +109,8 @@ public class Scheme {
             System.err.println("Identity length is not correct.");
             return null;
         }
-        BigInteger r_u = chooseRandom();
+        // Get a random integer mod p where p is the order of the input group.
+        BigInteger r_u = chooseRandom(this.pairing.getG1().getOrder());
         Element a = masterSecret;
         Element b = calculateMultiplier(identity,
                 publicParameters.uPrime, publicParameters.U);
@@ -125,7 +125,8 @@ public class Scheme {
             System.err.print("Message length is not correct.");
             return null;
         }
-        BigInteger r_m = chooseRandom();
+        // Get a random integer mod p where p is the order of the input group.
+        BigInteger r_m = chooseRandom(this.pairing.getG1().getOrder());
         Element a = privateKey.getFirst();
         Element b = calculateMultiplier(message,
                 publicParameters.mPrime, publicParameters.M);
@@ -152,6 +153,19 @@ public class Scheme {
         Element rightSide = rightSide_1.mul(rightSide_2).mul(rightSide_3);
 
         return leftSide.isEqual(rightSide);
+    }
+
+    private Polynomial constructKeyDisPolynomial(int threshold, BigInteger order) {
+        BigInteger[] parameters = new BigInteger[threshold];
+        for(int i = 0; i < threshold; i++) {
+            parameters[i] = chooseRandom(order);
+        }
+        return new Polynomial(parameters);
+    }
+
+    public void KeyDis(PrivateKey privateKey, int servers, int threshold) {
+        Polynomial polynomial = constructKeyDisPolynomial(threshold, this.pairing.getG1().getOrder());
+
     }
 
 }
