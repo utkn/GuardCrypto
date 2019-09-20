@@ -7,6 +7,8 @@ import it.unisa.dia.gas.jpbc.Element;
 
 import java.math.BigInteger;
 
+import static gcrypto.Helper.power;
+
 public class ThresholdScheme extends Scheme {
 
     private BigInteger r_up;
@@ -35,9 +37,6 @@ public class ThresholdScheme extends Scheme {
         for(int i = 0; i < threshold; i++) {
             coefficients[i] = chooseRandom(order);
         }
-        while(coefficients[0].compareTo(firstCoeffLimit) > 0) {
-            coefficients[0] = chooseRandom(order);
-        }
         return new Polynomial(coefficients, order);
     }
 
@@ -57,7 +56,7 @@ public class ThresholdScheme extends Scheme {
         // Y[0] = privateKey[0]/(identityMultiplier^r_up)
         //      = (g2^alpha)*(identityMultiplier)^(r_u - r_up)
         BigInteger exponent = privateKey.getR_u().subtract(getR_up());
-        Y[0] = getMasterSecret().mul(identityMultiplier.pow(exponent));
+        Y[0] = getMasterSecret().mul(power(identityMultiplier, exponent));
         Y[1] = privateKey.getSecond();
         // Construct the private/verification keys for each server.
         BigInteger[] distributedPrivateKeys = new BigInteger[servers];
@@ -65,17 +64,17 @@ public class ThresholdScheme extends Scheme {
         for(int server = 1; server <= servers; server++) {
             BigInteger f_k = polynomial.compute(BigInteger.valueOf(server));
             distributedPrivateKeys[server-1] = f_k;
-            distributedVerificationKeys[server-1] = pair(identityMultiplier, publicParameters.g).pow(f_k).getImmutable();
+            distributedVerificationKeys[server-1] = power(pair(identityMultiplier, publicParameters.g), f_k);
         }
         return new DistributedKeys(Y, distributedPrivateKeys, distributedVerificationKeys);
     }
 
     public SignatureShare ThrSig(int server, String message, String identity, DistributedKeys distributedKeys) {
         BigInteger r_k = chooseRandom(publicParameters.G.getOrder());
-        Element first_1 = calculateIdentityMultiplier(identity).pow(distributedKeys.getPrivateKey(server)).getImmutable();
-        Element first_2 = calculateMessageMultiplier(message).pow(r_k).getImmutable();
+        Element first_1 = power(calculateIdentityMultiplier(identity), distributedKeys.getPrivateKey(server));
+        Element first_2 = power(calculateMessageMultiplier(message), r_k);
         Element first = first_1.mul(first_2).getImmutable();
-        Element second = publicParameters.g.pow(r_k).getImmutable();
+        Element second = power(publicParameters.g, r_k).getImmutable();
         return new SignatureShare(r_k, first, second);
     }
 
@@ -97,8 +96,8 @@ public class ThresholdScheme extends Scheme {
             int server = servers[i];
             SignatureShare signatureShare = signatureShares[i];
             BigInteger lagrangeCoeff = BigInteger.valueOf(lagrangeCoefficient(servers, server));
-            first = first.mul(signatureShare.getFirst().pow(lagrangeCoeff)).getImmutable();
-            third = third.mul(signatureShare.getSecond().pow(lagrangeCoeff)).getImmutable();
+            first = first.mul(power(signatureShare.getFirst(), lagrangeCoeff)).getImmutable();
+            third = third.mul(power(signatureShare.getSecond(), lagrangeCoeff)).getImmutable();
         }
         return new Signature(first, second, third);
     }

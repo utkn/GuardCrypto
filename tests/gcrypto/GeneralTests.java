@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
+import static gcrypto.Helper.power;
+
 public class GeneralTests {
 
     TypeACurveGenerator generator;
@@ -35,6 +37,19 @@ public class GeneralTests {
         Assertions.assertTrue(rInt.isProbablePrime(10));
     }
 
+    // Assert that the elements of G1 have two inverses: one for addition, and one for multiplication.
+    @Test
+    public void inverseTest() {
+        Field g1 = pairing.getG1();
+        for(int i = 0; i < 100; i++) {
+            Element g = g1.newRandomElement().getImmutable();
+            Element g_neg = g.negate().getImmutable();
+            Element g_inv = g.invert().getImmutable();
+            Assertions.assertTrue(g.add(g_neg).isZero());
+            Assertions.assertTrue(g.mul(g_inv).isOne());
+        }
+    }
+
     // Assert that the elements of the G1 are generators.
     @Test
     public void generatorTest() {
@@ -42,7 +57,7 @@ public class GeneralTests {
         BigInteger order = g1.getOrder();
         for(int i = 0; i < 100; i++) {
             Element g = g1.newRandomElement();
-            Assertions.assertTrue(g.pow(order).isOne());
+            Assertions.assertTrue(power(g, order).isOne());
         }
     }
 
@@ -53,20 +68,20 @@ public class GeneralTests {
         Element g = pairing.getG1().newRandomElement().getImmutable();
 
         // 1
-        Element leftSide = pairing.pairing(g.pow(a), g.pow(b));
-        Element rightSide = pairing.pairing(g.pow(b), g.pow(a));
+        Element leftSide = pairing.pairing(power(g, a), power(g, b));
+        Element rightSide = pairing.pairing(power(g, b), power(g, a));
 
         Assertions.assertTrue(leftSide.isEqual(rightSide));
 
         // 2
-        leftSide = pairing.pairing(g.pow(a), g.pow(b));
-        rightSide = pairing.pairing(g, g.pow(a).pow(b));
+        leftSide = pairing.pairing(power(g, a), power(g, b));
+        rightSide = pairing.pairing(g, power(power(g, a), b));
 
         Assertions.assertTrue(leftSide.isEqual(rightSide));
 
         // 3
-        leftSide = pairing.pairing(g.pow(a), g.pow(b));
-        rightSide = pairing.pairing(g, g).pow(a).pow(b);
+        leftSide = pairing.pairing(power(g, a), power(g, b));
+        rightSide = power(power(pairing.pairing(g, g), a), b);
 
         Assertions.assertTrue(leftSide.isEqual(rightSide));
     }

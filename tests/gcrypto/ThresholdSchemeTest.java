@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
+import static gcrypto.Helper.power;
+
 public class ThresholdSchemeTest {
     private ThresholdScheme scheme;
     private Authority authority;
@@ -37,11 +39,11 @@ public class ThresholdSchemeTest {
         // Check whether the constructed public threshold parameters are correct.
         BigInteger exponent = privateKey.getR_u().subtract(scheme.getR_up());
         // Y[1] = masterSecret * identityMult^(r_u - r_u')
-        Element pp1Expected = scheme.getMasterSecret().mul(scheme.calculateIdentityMultiplier(identity).pow(exponent));
+        Element pp1Expected = scheme.getMasterSecret().mul(power(scheme.calculateIdentityMultiplier(identity), exponent));
         Element pp1Actual = distKeys.getPublicParameters()[0];
         Assertions.assertEquals(pp1Expected, pp1Actual);
         // Y[2] = g^r_u
-        Element pp2Expected = scheme.publicParameters.g.pow(privateKey.getR_u());
+        Element pp2Expected = power(scheme.publicParameters.g, privateKey.getR_u());
         Element pp2Actual = distKeys.getPublicParameters()[1];
         Assertions.assertEquals(pp2Expected, pp2Actual);
 
@@ -53,7 +55,7 @@ public class ThresholdSchemeTest {
         // We should be able to reconstruct the private key.
         // Y[1] = masterSecret * identityMultiplier^(r_u - r_u')
         // PrivateKey[1] = masterSecret * identityMultiplier^(r_u) = Y[1] * identityMultiplier^(r_u')
-        Element reconstructedFirstPart_1 = scheme.calculateIdentityMultiplier(identity).pow(r_up);
+        Element reconstructedFirstPart_1 = power(scheme.calculateIdentityMultiplier(identity), r_up);
         Element reconstructedFirstPart = distKeys.getPublicParameters()[0].mul(reconstructedFirstPart_1);
         Element reconstructedSecondPart = distKeys.getPublicParameters()[1];
 
@@ -105,20 +107,20 @@ public class ThresholdSchemeTest {
         Assertions.assertEquals(scheme.publicParameters.g.mul(privateKey.getR_u()), reconstructedSignature.getSecond());
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
 
-//        // Reconstruct from too few servers.
-//        int[] tooFewServerIndexes = new int[] { 5, 1 };
-//        SignatureShare[] tooFewSignatureShares = new SignatureShare[] {
-//                signatureShares[4], signatureShares[0]
-//        };
-//        reconstructedSignature = scheme.Reconstruct(tooFewServerIndexes, tooFewSignatureShares, distKeys);
-//        Assertions.assertFalse(scheme.Verify(identity, message, reconstructedSignature));
-//
-//        // Reconstruct from just enough servers.
-//        int[] justEnoughIndexes = new int[] { 1, 5, 3 };
-//        SignatureShare[] justEnoughSignatureShares = new SignatureShare[] {
-//                signatureShares[0], signatureShares[4], signatureShares[2]
-//        };
-//        reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
-//        Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
+        // Reconstruct from too few servers.
+        int[] tooFewServerIndexes = new int[] { 1, 2 };
+        SignatureShare[] tooFewSignatureShares = new SignatureShare[] {
+                signatureShares[0], signatureShares[1]
+        };
+        reconstructedSignature = scheme.Reconstruct(tooFewServerIndexes, tooFewSignatureShares, distKeys);
+        Assertions.assertFalse(scheme.Verify(identity, message, reconstructedSignature));
+
+        // Reconstruct from just enough servers.
+        int[] justEnoughIndexes = new int[] { 1, 2, 3 };
+        SignatureShare[] justEnoughSignatureShares = new SignatureShare[] {
+                signatureShares[0], signatureShares[1], signatureShares[2]
+        };
+        reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
+        Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
     }
 }

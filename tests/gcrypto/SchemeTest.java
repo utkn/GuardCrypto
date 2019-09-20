@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
+import static gcrypto.Helper.power;
+
 public class SchemeTest {
 
     private Scheme scheme;
@@ -26,7 +28,7 @@ public class SchemeTest {
         PublicParameters p = scheme.Setup(authority);
         Assertions.assertEquals(messageLength, p.M.length);
         Assertions.assertEquals(identityLength, p.U.length);
-        Assertions.assertTrue(p.g.pow(scheme.getAlpha()).isEqual(p.g1));
+        Assertions.assertTrue(power(p.g, scheme.getAlpha()).isEqual(p.g1));
     }
 
     @Test
@@ -34,8 +36,8 @@ public class SchemeTest {
         PublicParameters p = scheme.Setup(authority);
         BigInteger alpha = scheme.getAlpha();
         Element masterSecret = scheme.getMasterSecret();
-        Assertions.assertTrue(masterSecret.isEqual(p.g2.pow(alpha)));
-        Assertions.assertTrue(scheme.pair(masterSecret, p.g2).isEqual(scheme.pair(p.g2, p.g2).pow(alpha)));
+        Assertions.assertTrue(masterSecret.isEqual(power(p.g2, alpha)));
+        Assertions.assertTrue(scheme.pair(masterSecret, p.g2).isEqual(power(scheme.pair(p.g2, p.g2), alpha)));
     }
 
     @Test

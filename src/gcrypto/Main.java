@@ -13,13 +13,6 @@ import java.math.BigInteger;
 public class Main {
 
     public static void main(String[] args) {
-        TypeACurveGenerator generator = new TypeACurveGenerator(160, 512);
-        PropertiesParameters params = (PropertiesParameters)generator.generate();
-        Pairing pairing = PairingFactory.getPairing(params);
-        Field g1 = pairing.getG1();
-        BigInteger order = g1.getOrder();
-        BigInteger orderPlusOne = order.add(BigInteger.ONE);
-        System.out.println(order);
-        g1.newElement(1);
+
     }
 }

@@ -11,6 +11,8 @@ import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+import static gcrypto.Helper.power;
+
 public class Scheme {
     SecureRandom rand = new SecureRandom();
 
@@ -106,9 +108,9 @@ public class Scheme {
         publicParameters.GT = pairing.getGT();
         // We make use of the fact that every element in the input field is a generator.
         publicParameters.g = publicParameters.G.newRandomElement().getImmutable();
-        publicParameters.g1 = publicParameters.g.pow(alpha).getImmutable();
+        publicParameters.g1 = power(publicParameters.g, alpha).getImmutable();
         publicParameters.g2 = publicParameters.G.newRandomElement().getImmutable();
-        masterSecret = publicParameters.g2.pow(alpha).getImmutable();
+        masterSecret = power(publicParameters.g2, alpha).getImmutable();
         // Use the authority to generate u', m', U and M.
         publicParameters.uPrime = authority.generateUPrime(publicParameters.G);
         publicParameters.mPrime = authority.generateMPrime(publicParameters.G);
@@ -124,8 +126,8 @@ public class Scheme {
         }
         // Get a random integer mod p where p is the order of the input group.
         BigInteger r_u = chooseRandom(this.pairing.getG1().getOrder());
-        Element a = masterSecret.mul(calculateIdentityMultiplier(identity).pow(r_u));
-        Element b = publicParameters.g.pow(r_u);
+        Element a = masterSecret.mul(power(calculateIdentityMultiplier(identity), r_u));
+        Element b = power(publicParameters.g, r_u);
         // a = (g2^alpha) * (identityMultiplier)^r_u
         // b = g^r_u
         return new PrivateKey(a, b, r_u);
@@ -140,10 +142,10 @@ public class Scheme {
         BigInteger r_m = chooseRandom(this.pairing.getG1().getOrder());
         Element a = privateKey.getFirst();
         Element b = calculateMessageMultiplier(message);
-        b = b.pow(r_m);
+        b = power(b, r_m);
         a = a.mul(b);
         Element c = privateKey.getSecond();
-        Element d = publicParameters.g.pow(r_m);
+        Element d = power(publicParameters.g, r_m);
         return new Signature(a, c, d);
     }
 
