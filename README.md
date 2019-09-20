@@ -70,5 +70,6 @@ el1.twice(); // Multiply by 2
 el1.halve(); // Divide by 2
 el1.invert(); // Multiplicative inversion
 el1.negate(); // Additive inversion
-el1.pow(BigInteger.valueOf(x)); // Exponentiation (el^x)
+el1.pow(BigInteger.valueOf(x)); // Positive Exponentiation (el^x) (x >= 0)
+el1.pow(BigInteger.valueOf(x)).invert(); // Negative Exponentiation (el^x) (x < 0)
 ```
