@@ -1,7 +1,7 @@
 ## GuardCrypto Documentation
 We use the [TODO cite] paper in our implementation. The scheme builds up a threshold signature
 scheme from a non-threshold version that makes use of bilinear pairings.
-### Non Threshold Version
+### Non Threshold Scheme
 #### Construction
 ```java
 // We create instance of the scheme.
@@ -45,3 +45,21 @@ if(!signed) {
     throw new Exception("Invalid signature!!");
 }
 ```
+
+### Threshold Scheme
+#### Construction
+We use `ThresholdScheme` (that extends from `Scheme`) objects to instantiate a threshold-signature scheme.
+```java
+// We create instance of the scheme.
+ThresholdScheme scheme = new ThresholdScheme(rBits, qBits, identityLength, messageLength);
+Authority auth = new Authority();
+```
+
+#### Methods
+##### DistributedKeys KeyDis(PrivateKey, int servers, int threshold, String identity)
+This method constructs the public parameters and private keys for the threshold-scheme by "splicing" a private-key into `servers` many
+different private-keys, each of them belonging to a server with the index in [1, `servers`].
+```java
+
+```
+##### ThrSig(int server, String message, String identity, DistributedKeys)

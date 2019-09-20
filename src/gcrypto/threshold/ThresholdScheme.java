@@ -13,7 +13,6 @@ public class ThresholdScheme extends Scheme {
 
     private BigInteger r_up;
 
-
     /**
      * Generates the parameters for the pairing.
      *
