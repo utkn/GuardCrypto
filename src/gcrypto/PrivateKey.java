@@ -2,13 +2,17 @@ package gcrypto;
 
 import it.unisa.dia.gas.jpbc.Element;
 
+import java.math.BigInteger;
+
 public class PrivateKey {
     private Element first;
     private Element second;
+    private BigInteger r_u;
 
-    public PrivateKey(Element first, Element second) {
+    public PrivateKey(Element first, Element second, BigInteger r_u) {
         this.first = first.getImmutable();
         this.second = second.getImmutable();
+        this.r_u = r_u;
     }
 
     public Element getFirst() {
@@ -17,5 +21,9 @@ public class PrivateKey {
 
     public Element getSecond() {
         return second.getImmutable();
+    }
+
+    public BigInteger getR_u() {
+        return r_u;
     }
 }

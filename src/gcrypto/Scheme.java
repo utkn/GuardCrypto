@@ -110,10 +110,10 @@ public class Scheme {
         publicParameters.g2 = publicParameters.G.newRandomElement().getImmutable();
         masterSecret = publicParameters.g2.pow(alpha).getImmutable();
         // Use the authority to generate u', m', U and M.
-        publicParameters.uPrime = authority.uPrime(publicParameters.G);
-        publicParameters.mPrime = authority.mPrime(publicParameters.G);
-        publicParameters.U = authority.U(publicParameters.G, identityLength);
-        publicParameters.M = authority.M(publicParameters.G, messageLength);
+        publicParameters.uPrime = authority.generateUPrime(publicParameters.G);
+        publicParameters.mPrime = authority.generateMPrime(publicParameters.G);
+        publicParameters.U = authority.generateUVector(publicParameters.G, identityLength);
+        publicParameters.M = authority.generateMVector(publicParameters.G, messageLength);
         return publicParameters;
     }
 
@@ -124,12 +124,11 @@ public class Scheme {
         }
         // Get a random integer mod p where p is the order of the input group.
         BigInteger r_u = chooseRandom(this.pairing.getG1().getOrder());
-        Element a = masterSecret;
-        a = a.mul(calculateIdentityMultiplier(identity).pow(r_u));
+        Element a = masterSecret.mul(calculateIdentityMultiplier(identity).pow(r_u));
         Element b = publicParameters.g.pow(r_u);
         // a = (g2^alpha) * (identityMultiplier)^r_u
         // b = g^r_u
-        return new PrivateKey(a, b);
+        return new PrivateKey(a, b, r_u);
     }
 
     public Signature Sign(String message, PrivateKey privateKey) {

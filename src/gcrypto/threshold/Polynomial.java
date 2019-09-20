@@ -9,7 +9,7 @@ public class Polynomial {
 
     public Polynomial(BigInteger[] coefficients, BigInteger p) {
         if(coefficients.length < 1) {
-            System.err.println("At least one coefficient for the polynomial required!");
+            System.err.println("At least one coefficient for the polynomial is required!");
         }
         this.p = p;
         this.coefficients = coefficients;

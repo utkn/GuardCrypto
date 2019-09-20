@@ -30,10 +30,13 @@ public class ThresholdScheme extends Scheme {
      * @param order
      * @return
      */
-    private Polynomial constructKeyDisPolynomial(int threshold, BigInteger order) {
+    private Polynomial constructKeyDisPolynomial(int threshold, BigInteger order, BigInteger firstCoeffLimit) {
         BigInteger[] coefficients = new BigInteger[threshold];
         for(int i = 0; i < threshold; i++) {
             coefficients[i] = chooseRandom(order);
+        }
+        while(coefficients[0].compareTo(firstCoeffLimit) > 0) {
+            coefficients[0] = chooseRandom(order);
         }
         return new Polynomial(coefficients, order);
     }
@@ -45,7 +48,7 @@ public class ThresholdScheme extends Scheme {
 
     public DistributedKeys KeyDis(PrivateKey privateKey, int servers, int threshold, String identity) {
         // Construct a0+a1x+a2x^2+...+a(t-1)x^(t-1) where a0,a1,a2,...,a(t-1) are chosen from Zp.
-        Polynomial polynomial = constructKeyDisPolynomial(threshold, pairing.getG1().getOrder());
+        Polynomial polynomial = constructKeyDisPolynomial(threshold, pairing.getG1().getOrder(), privateKey.getR_u());
         // r_u' = a0
         r_up = polynomial.getCoefficient(0);
         // Y is the public parameter for all servers.
@@ -53,8 +56,8 @@ public class ThresholdScheme extends Scheme {
         Element identityMultiplier = calculateIdentityMultiplier(identity);
         // Y[0] = privateKey[0]/(identityMultiplier^r_up)
         //      = (g2^alpha)*(identityMultiplier)^(r_u - r_up)
-        Element divisor = identityMultiplier.pow(r_up);
-        Y[0] = privateKey.getFirst().div(divisor);
+        BigInteger exponent = privateKey.getR_u().subtract(getR_up());
+        Y[0] = getMasterSecret().mul(identityMultiplier.pow(exponent));
         Y[1] = privateKey.getSecond();
         // Construct the private/verification keys for each server.
         BigInteger[] distributedPrivateKeys = new BigInteger[servers];
@@ -62,17 +65,17 @@ public class ThresholdScheme extends Scheme {
         for(int server = 1; server <= servers; server++) {
             BigInteger f_k = polynomial.compute(BigInteger.valueOf(server));
             distributedPrivateKeys[server-1] = f_k;
-            distributedVerificationKeys[server-1] = pair(identityMultiplier, publicParameters.g).pow(f_k);
+            distributedVerificationKeys[server-1] = pair(identityMultiplier, publicParameters.g).pow(f_k).getImmutable();
         }
         return new DistributedKeys(Y, distributedPrivateKeys, distributedVerificationKeys);
     }
 
     public SignatureShare ThrSig(int server, String message, String identity, DistributedKeys distributedKeys) {
         BigInteger r_k = chooseRandom(publicParameters.G.getOrder());
-        Element first_1 = calculateIdentityMultiplier(identity).pow(distributedKeys.getPrivateKey(server));
-        Element first_2 = calculateMessageMultiplier(message).pow(r_k);
-        Element first = first_1.getImmutable().mul(first_2);
-        Element second = publicParameters.g.pow(r_k);
+        Element first_1 = calculateIdentityMultiplier(identity).pow(distributedKeys.getPrivateKey(server)).getImmutable();
+        Element first_2 = calculateMessageMultiplier(message).pow(r_k).getImmutable();
+        Element first = first_1.mul(first_2).getImmutable();
+        Element second = publicParameters.g.pow(r_k).getImmutable();
         return new SignatureShare(r_k, first, second);
     }
 
@@ -85,6 +88,7 @@ public class ThresholdScheme extends Scheme {
         return (int)result;
     }
 
+
     public Signature Reconstruct(int[] servers, SignatureShare[] signatureShares, DistributedKeys distKeys) {
         Element first = distKeys.getPublicParameters()[0];
         Element second = distKeys.getPublicParameters()[1];
@@ -93,8 +97,8 @@ public class ThresholdScheme extends Scheme {
             int server = servers[i];
             SignatureShare signatureShare = signatureShares[i];
             BigInteger lagrangeCoeff = BigInteger.valueOf(lagrangeCoefficient(servers, server));
-            first = first.mul(signatureShare.getFirst().pow(lagrangeCoeff));
-            third = third.mul(signatureShare.getSecond().pow(lagrangeCoeff));
+            first = first.mul(signatureShare.getFirst().pow(lagrangeCoeff)).getImmutable();
+            third = third.mul(signatureShare.getSecond().pow(lagrangeCoeff)).getImmutable();
         }
         return new Signature(first, second, third);
     }

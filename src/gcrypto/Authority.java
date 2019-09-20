@@ -2,23 +2,21 @@ package gcrypto;
 
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
-import it.unisa.dia.gas.jpbc.Vector;
-import it.unisa.dia.gas.plaf.jpbc.field.vector.VectorElement;
 
 public class Authority {
-    public Element mPrime(Field G) {
+    public Element generateMPrime(Field G) {
         return G.newRandomElement().getImmutable();
     }
 
-    public Element uPrime(Field G) {
+    public Element generateUPrime(Field G) {
         return G.newRandomElement().getImmutable();
     }
 
-    public Element[] M(Field G, int n_m) {
+    public Element[] generateMVector(Field G, int n_m) {
         return generateRandomVector(G, n_m);
     }
 
-    public Element[] U(Field G, int n_u) {
+    public Element[] generateUVector(Field G, int n_u) {
         return generateRandomVector(G, n_u);
     }
 

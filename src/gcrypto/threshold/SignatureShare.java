@@ -12,9 +12,9 @@ public class SignatureShare {
     private BigInteger r_k;
 
     public SignatureShare(BigInteger r_k, Element first, Element second) {
+        this.r_k = r_k;
         this.first = first.getImmutable();
         this.second = second.getImmutable();
-        this.r_k = r_k;
     }
 
     public Element getFirst() {
