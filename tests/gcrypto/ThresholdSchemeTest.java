@@ -88,8 +88,10 @@ public class ThresholdSchemeTest {
         String identity = "00101";
         String message = "1010011001";
 
+        String falseIdentity = "10101";
+        String falseMessage = "1010011000";
+
         // We want to make sure that the "reconstructed" signatures from the signature-shares are valid.
-        // First, construct the expected signature.
         PrivateKey privateKey = scheme.Extract(identity);
         // Generate the distributed keys.
         DistributedKeys distKeys = scheme.KeyDis(privateKey, servers, threshold, identity);
@@ -105,6 +107,10 @@ public class ThresholdSchemeTest {
         // Perform simple assertions.
         Assertions.assertEquals(scheme.publicParameters.g.mul(privateKey.getR_u()), reconstructedSignature.getSecond());
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
+        // Negative assertions.
+        Assertions.assertFalse(scheme.Verify(falseIdentity, message, reconstructedSignature));
+        Assertions.assertFalse(scheme.Verify(identity, falseMessage, reconstructedSignature));
+        Assertions.assertFalse(scheme.Verify(falseIdentity, falseMessage, reconstructedSignature));
 
         // Reconstruct from too few servers.
         int[] tooFewServerIndexes = new int[] { 1, 2 };
@@ -113,6 +119,11 @@ public class ThresholdSchemeTest {
         };
         reconstructedSignature = scheme.Reconstruct(tooFewServerIndexes, tooFewSignatureShares, distKeys);
         Assertions.assertFalse(scheme.Verify(identity, message, reconstructedSignature));
+        // Negative assertions.
+        Assertions.assertFalse(scheme.Verify(falseIdentity, message, reconstructedSignature));
+        Assertions.assertFalse(scheme.Verify(identity, falseMessage, reconstructedSignature));
+        Assertions.assertFalse(scheme.Verify(falseIdentity, falseMessage, reconstructedSignature));
+
 
         // Reconstruct from just enough servers.
         int[] justEnoughIndexes = new int[] { 1, 2, 3 };
@@ -121,12 +132,9 @@ public class ThresholdSchemeTest {
         };
         reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
-    }
-
-    @Test
-    public void junkDataTest() {
-        String identity = "00101";
-        String message = "1010011001";
-
+        // Negative assertions.
+        Assertions.assertFalse(scheme.Verify(falseIdentity, message, reconstructedSignature));
+        Assertions.assertFalse(scheme.Verify(identity, falseMessage, reconstructedSignature));
+        Assertions.assertFalse(scheme.Verify(falseIdentity, falseMessage, reconstructedSignature));
     }
 }
