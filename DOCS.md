@@ -81,19 +81,25 @@ for(int server = 1; server <= servers; server++) {
 ```
 ##### Signature Reconstruct(int[] serverIndexes, SignatureShare[] signatureShares, DistributedKeys)
 From the signature shares, it is possible to reconstruct a valid signature. Please note that the generated signature won't be the same as a signature generated from the non-threshold scheme, however, they will both be able to verify the messages.
-```java
-int[] allIndexes = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-// Reconstruct from every server.
-Signature reconstructedSignature = scheme.Reconstruct(allIndexes, signatureShares, distKeys);
-// Perform simple assertions.
-Assertions.assertEquals(scheme.publicParameters.g.mul(privateKey.getR_u()), reconstructedSignature.getSecond());
-Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
 
+The first parameter is a list of server indexes in [1, `servers`]. The second parameter is their corresponding signature shares. The order of the signature shares need to correspond to the order of the indexes given in the first argument.
+```java
+// Reconstruct from every server.
+int[] allIndexes = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+Signature reconstructedSignature = scheme.Reconstruct(allIndexes, signatureShares, distKeys);
+if(!scheme.Verify(identity, message, reconstructedSignature)) {
+    throw new Exception("Not authentic!!");
+}
+```
+```java
 // Reconstruct from just enough servers (if t=3).
-int[] justEnoughIndexes = new int[] { 1, 2, 3 };
+int[] justEnoughIndexes = new int[] { 3, 1, 7 };
 SignatureShare[] justEnoughSignatureShares = new SignatureShare[] {
-        signatureShares[0], signatureShares[1], signatureShares[2]
+        // The signature shares that correspond to the server indexes.
+        signatureShares[2], signatureShares[0], signatureShares[6]
 };
 reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
-Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
+if(!scheme.Verify(identity, message, reconstructedSignature)) {
+    throw new Exception("Not authentic!!");
+}
 ```
