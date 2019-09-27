@@ -50,6 +50,19 @@ public class GeneralTests {
         }
     }
 
+    // Assert that the identity elements of G1 are working as expected.
+    @Test
+    public void identityTest() {
+        Field g1 = pairing.getG1();
+        Element zero = g1.newZeroElement().getImmutable();
+        Element one = g1.newOneElement().getImmutable();
+        for(int i = 0; i < 100; i++) {
+            Element g = g1.newRandomElement().getImmutable();
+            Assertions.assertEquals(g, g.add(zero));
+            Assertions.assertEquals(g, g.mul(one));
+        }
+    }
+
     // Assert that the elements of the G1 are generators.
     @Test
     public void generatorTest() {

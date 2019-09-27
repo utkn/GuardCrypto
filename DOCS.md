@@ -60,6 +60,40 @@ Authority auth = new Authority();
 This method constructs the public parameters and private keys for the threshold-scheme by "splicing" a private-key into `servers` many
 different private-keys, each of them belonging to a server with the index in [1, `servers`].
 ```java
-
+// First, construct the expected signature.
+PrivateKey privateKey = scheme.Extract(identity);
+// Generate the distributed keys.
+DistributedKeys distKeys = scheme.KeyDis(privateKey, servers, threshold, identity);
 ```
-##### ThrSig(int server, String message, String identity, DistributedKeys)
+##### SignatureShare ThrSig(int server, String message, String identity, DistributedKeys)
+Once the distributed keys are calculated and stored in a `DistributedKeys` object, we can compute the partial-signatures for each server index in [1, `servers`].
+```java
+// Collecting only a single partial signature for the 3rd server.
+SignatureShare signatureShare = scheme.ThrSig(3, message, identity, distKeys);
+```
+```java
+// Collecting every partial signature.
+SignatureShare[] signatureShares = new SignatureShare[servers];
+// Collect the signature shares for each server.
+for(int server = 1; server <= servers; server++) {
+    signatureShares[server-1] = scheme.ThrSig(server, message, identity, distKeys);
+}
+```
+##### Signature Reconstruct(int[] serverIndexes, SignatureShare[] signatureShares, DistributedKeys)
+From the signature shares, it is possible to reconstruct a valid signature. Please note that the generated signature won't be the same as a signature generated from the non-threshold scheme, however, they will both be able to verify the messages.
+```java
+int[] allIndexes = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+// Reconstruct from every server.
+Signature reconstructedSignature = scheme.Reconstruct(allIndexes, signatureShares, distKeys);
+// Perform simple assertions.
+Assertions.assertEquals(scheme.publicParameters.g.mul(privateKey.getR_u()), reconstructedSignature.getSecond());
+Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
+
+// Reconstruct from just enough servers (if t=3).
+int[] justEnoughIndexes = new int[] { 1, 2, 3 };
+SignatureShare[] justEnoughSignatureShares = new SignatureShare[] {
+        signatureShares[0], signatureShares[1], signatureShares[2]
+};
+reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
+Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
+```

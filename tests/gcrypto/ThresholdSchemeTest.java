@@ -1,6 +1,5 @@
 package gcrypto;
 
-import com.sun.tools.internal.xjc.reader.dtd.bindinfo.BIAttribute;
 import gcrypto.threshold.DistributedKeys;
 import gcrypto.threshold.SignatureShare;
 import gcrypto.threshold.ThresholdScheme;
@@ -122,5 +121,12 @@ public class ThresholdSchemeTest {
         };
         reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
+    }
+
+    @Test
+    public void junkDataTest() {
+        String identity = "00101";
+        String message = "1010011001";
+
     }
 }

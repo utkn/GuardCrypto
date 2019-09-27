@@ -2,7 +2,6 @@ package gcrypto;
 
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
-import it.unisa.dia.gas.jpbc.Vector;
 
 
 public class PublicParameters {
