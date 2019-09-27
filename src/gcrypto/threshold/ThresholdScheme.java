@@ -31,7 +31,7 @@ public class ThresholdScheme extends Scheme {
      * @param order
      * @return
      */
-    private Polynomial constructKeyDisPolynomial(int threshold, BigInteger order, BigInteger firstCoeffLimit) {
+    private Polynomial constructKeyDisPolynomial(int threshold, BigInteger order) {
         BigInteger[] coefficients = new BigInteger[threshold];
         for(int i = 0; i < threshold; i++) {
             coefficients[i] = chooseRandom(order);
@@ -46,7 +46,7 @@ public class ThresholdScheme extends Scheme {
 
     public DistributedKeys KeyDis(PrivateKey privateKey, int servers, int threshold, String identity) {
         // Construct a0+a1x+a2x^2+...+a(t-1)x^(t-1) where a0,a1,a2,...,a(t-1) are chosen from Zp.
-        Polynomial polynomial = constructKeyDisPolynomial(threshold, pairing.getG1().getOrder(), privateKey.getR_u());
+        Polynomial polynomial = constructKeyDisPolynomial(threshold, pairing.getG1().getOrder());
         // r_u' = a0
         r_up = polynomial.getCoefficient(0);
         // Y is the public parameter for all servers.

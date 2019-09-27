@@ -113,9 +113,9 @@ public class ThresholdSchemeTest {
         Assertions.assertFalse(scheme.Verify(falseIdentity, falseMessage, reconstructedSignature));
 
         // Reconstruct from too few servers.
-        int[] tooFewServerIndexes = new int[] { 1, 2 };
+        int[] tooFewServerIndexes = new int[] { 1, 7 };
         SignatureShare[] tooFewSignatureShares = new SignatureShare[] {
-                signatureShares[0], signatureShares[1]
+                signatureShares[0], signatureShares[6]
         };
         reconstructedSignature = scheme.Reconstruct(tooFewServerIndexes, tooFewSignatureShares, distKeys);
         Assertions.assertFalse(scheme.Verify(identity, message, reconstructedSignature));
@@ -126,9 +126,9 @@ public class ThresholdSchemeTest {
 
 
         // Reconstruct from just enough servers.
-        int[] justEnoughIndexes = new int[] { 1, 2, 3 };
+        int[] justEnoughIndexes = new int[] { 2, 3, 1 };
         SignatureShare[] justEnoughSignatureShares = new SignatureShare[] {
-                signatureShares[0], signatureShares[1], signatureShares[2]
+                signatureShares[1], signatureShares[2], signatureShares[0]
         };
         reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
