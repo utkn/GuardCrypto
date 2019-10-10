@@ -31,7 +31,7 @@ public class DistributedKeys {
         return this.verificationKeys[server-1];
     }
 
-    public Element[] getPublicParameters() {
+    public Element[] getY() {
         return Y;
     }
 }

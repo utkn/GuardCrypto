@@ -39,11 +39,11 @@ public class ThresholdSchemeTest {
         BigInteger exponent = privateKey.getR_u().subtract(scheme.getR_up());
         // Y[1] = masterSecret * identityMult^(r_u - r_u')
         Element pp1Expected = scheme.getMasterSecret().mul(power(scheme.calculateIdentityMultiplier(identity), exponent));
-        Element pp1Actual = distKeys.getPublicParameters()[0];
+        Element pp1Actual = distKeys.getY()[0];
         Assertions.assertEquals(pp1Expected, pp1Actual);
         // Y[2] = g^r_u
         Element pp2Expected = power(scheme.publicParameters.g, privateKey.getR_u());
-        Element pp2Actual = distKeys.getPublicParameters()[1];
+        Element pp2Actual = distKeys.getY()[1];
         Assertions.assertEquals(pp2Expected, pp2Actual);
 
         // Check whether we can construct the private key from the public threshold parameters.
@@ -55,8 +55,8 @@ public class ThresholdSchemeTest {
         // Y[1] = masterSecret * identityMultiplier^(r_u - r_u')
         // PrivateKey[1] = masterSecret * identityMultiplier^(r_u) = Y[1] * identityMultiplier^(r_u')
         Element reconstructedFirstPart_1 = power(scheme.calculateIdentityMultiplier(identity), r_up);
-        Element reconstructedFirstPart = distKeys.getPublicParameters()[0].mul(reconstructedFirstPart_1);
-        Element reconstructedSecondPart = distKeys.getPublicParameters()[1];
+        Element reconstructedFirstPart = distKeys.getY()[0].mul(reconstructedFirstPart_1);
+        Element reconstructedSecondPart = distKeys.getY()[1];
 
         // Make sure that this is the case.
         Assertions.assertEquals(privateKey.getFirst(), reconstructedFirstPart);
