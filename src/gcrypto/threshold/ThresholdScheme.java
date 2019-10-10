@@ -110,7 +110,7 @@ public class ThresholdScheme extends Scheme {
         return new Signature(first, second, third);
     }
 
-    public Signature Reconstruct2(int[] servers, SignatureShare[] signatureShares, Element[] Y) {
+    public Signature Reconstruct(int[] servers, SignatureShare[] signatureShares, Element[] Y) {
         Element first = Y[0];
         Element second = Y[1];
         Element third = publicParameters.G.newOneElement().getImmutable();
