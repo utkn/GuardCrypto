@@ -1,5 +1,5 @@
 # GuardCrypto Documentation
-We use the [TODO cite] paper in our implementation. The scheme builds up a threshold signature
+We use [this paper](https://eprint.iacr.org/2012/073.pdf) in our implementation. The scheme builds up a threshold signature
 scheme from a non-threshold version that makes use of bilinear pairings.
 ## Contents
 * [Non Threshold Scheme](#non-threshold-scheme)
