@@ -2,9 +2,10 @@ package gcrypto;
 
 import it.unisa.dia.gas.jpbc.Element;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class PrivateKey {
+public class PrivateKey implements Serializable {
     private Element first;
     private Element second;
     private BigInteger r_u;

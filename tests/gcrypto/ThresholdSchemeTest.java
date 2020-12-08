@@ -38,7 +38,7 @@ public class ThresholdSchemeTest {
         // Check whether the constructed public threshold parameters are correct.
         BigInteger exponent = privateKey.getR_u().subtract(scheme.getR_up());
         // Y[1] = masterSecret * identityMult^(r_u - r_u')
-        Element pp1Expected = scheme.getMasterSecret().mul(power(scheme.calculateIdentityMultiplier(identity), exponent));
+        Element pp1Expected = scheme.getMasterSecret().mul(power(ThresholdScheme.calculateIdentityMultiplier(identity, scheme.publicParameters), exponent));
         Element pp1Actual = distKeys.getY()[0];
         Assertions.assertEquals(pp1Expected, pp1Actual);
         // Y[2] = g^r_u
@@ -54,7 +54,7 @@ public class ThresholdSchemeTest {
         // We should be able to reconstruct the private key.
         // Y[1] = masterSecret * identityMultiplier^(r_u - r_u')
         // PrivateKey[1] = masterSecret * identityMultiplier^(r_u) = Y[1] * identityMultiplier^(r_u')
-        Element reconstructedFirstPart_1 = power(scheme.calculateIdentityMultiplier(identity), r_up);
+        Element reconstructedFirstPart_1 = power(ThresholdScheme.calculateIdentityMultiplier(identity, scheme.publicParameters), r_up);
         Element reconstructedFirstPart = distKeys.getY()[0].mul(reconstructedFirstPart_1);
         Element reconstructedSecondPart = distKeys.getY()[1];
 
@@ -74,10 +74,10 @@ public class ThresholdSchemeTest {
         // Check whether the signature-shares are valid.
         for(int server = 1; server <= servers; server++) {
             // For each server, construct a signature share.
-            SignatureShare signatureShare = scheme.ThrSig(server, message, identity, distKeys);
+            SignatureShare signatureShare = ThresholdScheme.ThrSigIndividual(message, identity, distKeys.getPrivateKey(server), scheme.publicParameters);
             // And make sure that it is valid.
             Element leftSide = scheme.pair(signatureShare.getFirst(), scheme.publicParameters.g);
-            Element rightPairing = scheme.pair(scheme.calculateMessageMultiplier(message), signatureShare.getSecond());
+            Element rightPairing = scheme.pair(ThresholdScheme.calculateMessageMultiplier(message, scheme.publicParameters), signatureShare.getSecond());
             Element rightSide = distKeys.getVerificationKey(server).mul(rightPairing);
             Assertions.assertEquals(leftSide, rightSide);
         }
@@ -98,12 +98,14 @@ public class ThresholdSchemeTest {
         SignatureShare[] signatureShares = new SignatureShare[servers];
         // Collect the signature shares for each server.
         for(int server = 1; server <= servers; server++) {
-            signatureShares[server-1] = scheme.ThrSig(server, message, identity, distKeys);
+            // Server partially signing with his partial key.
+            BigInteger keyShare = distKeys.getPrivateKey(server);
+            signatureShares[server-1] = ThresholdScheme.ThrSigIndividual(message, identity, keyShare, scheme.publicParameters);
         }
 
         int[] allIndexes = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         // Reconstruct from every server.
-        Signature reconstructedSignature = scheme.Reconstruct(allIndexes, signatureShares, distKeys);
+        Signature reconstructedSignature = ThresholdScheme.Reconstruct(allIndexes, signatureShares, distKeys.getY(), scheme.publicParameters);
         // Perform simple assertions.
         Assertions.assertEquals(scheme.publicParameters.g.mul(privateKey.getR_u()), reconstructedSignature.getSecond());
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
@@ -117,7 +119,7 @@ public class ThresholdSchemeTest {
         SignatureShare[] tooFewSignatureShares = new SignatureShare[] {
                 signatureShares[0], signatureShares[6]
         };
-        reconstructedSignature = scheme.Reconstruct(tooFewServerIndexes, tooFewSignatureShares, distKeys);
+        reconstructedSignature = ThresholdScheme.Reconstruct(tooFewServerIndexes, tooFewSignatureShares, distKeys.getY(), scheme.publicParameters);
         Assertions.assertFalse(scheme.Verify(identity, message, reconstructedSignature));
         // Negative assertions.
         Assertions.assertFalse(scheme.Verify(falseIdentity, message, reconstructedSignature));
@@ -130,7 +132,7 @@ public class ThresholdSchemeTest {
         SignatureShare[] justEnoughSignatureShares = new SignatureShare[] {
                 signatureShares[1], signatureShares[2], signatureShares[0]
         };
-        reconstructedSignature = scheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys);
+        reconstructedSignature = ThresholdScheme.Reconstruct(justEnoughIndexes, justEnoughSignatureShares, distKeys.getY(), scheme.publicParameters);
         Assertions.assertTrue(scheme.Verify(identity, message, reconstructedSignature));
         // Negative assertions.
         Assertions.assertFalse(scheme.Verify(falseIdentity, message, reconstructedSignature));

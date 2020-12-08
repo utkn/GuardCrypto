@@ -1,6 +1,7 @@
 package gcrypto.threshold;
 
 import gcrypto.PrivateKey;
+import gcrypto.PublicParameters;
 import gcrypto.Scheme;
 import gcrypto.Signature;
 import it.unisa.dia.gas.jpbc.Element;
@@ -51,7 +52,7 @@ public class ThresholdScheme extends Scheme {
         r_up = polynomial.getCoefficient(0);
         // Y is the public parameter for all servers.
         Element[] Y = new Element[2];
-        Element identityMultiplier = calculateIdentityMultiplier(identity);
+        Element identityMultiplier = calculateIdentityMultiplier(identity, publicParameters);
         // Y[0] = privateKey[0]/(identityMultiplier^r_up)
         //      = (g2^alpha)*(identityMultiplier)^(r_u - r_up)
         BigInteger exponent = privateKey.getR_u().subtract(getR_up());
@@ -68,25 +69,17 @@ public class ThresholdScheme extends Scheme {
         return new DistributedKeys(Y, distributedPrivateKeys, distributedVerificationKeys);
     }
 
-    public SignatureShare ThrSig(int server, String message, String identity, DistributedKeys distributedKeys) {
+    public static SignatureShare ThrSigIndividual(String message, String identity, BigInteger privateKey,
+                                                  PublicParameters publicParameters) {
         BigInteger r_k = chooseRandom(publicParameters.G.getOrder());
-        Element first_1 = power(calculateIdentityMultiplier(identity), distributedKeys.getPrivateKey(server));
-        Element first_2 = power(calculateMessageMultiplier(message), r_k);
+        Element first_1 = power(calculateIdentityMultiplier(identity, publicParameters), privateKey);
+        Element first_2 = power(calculateMessageMultiplier(message, publicParameters), r_k);
         Element first = first_1.mul(first_2).getImmutable();
         Element second = power(publicParameters.g, r_k).getImmutable();
         return new SignatureShare(r_k, first, second);
     }
 
-    public SignatureShare ThrSigIndividual(String message, String identity, BigInteger privateKey) {
-        BigInteger r_k = chooseRandom(publicParameters.G.getOrder());
-        Element first_1 = power(calculateIdentityMultiplier(identity), privateKey);
-        Element first_2 = power(calculateMessageMultiplier(message), r_k);
-        Element first = first_1.mul(first_2).getImmutable();
-        Element second = power(publicParameters.g, r_k).getImmutable();
-        return new SignatureShare(r_k, first, second);
-    }
-
-    private int lagrangeCoefficient(int[] omega, int k) {
+    private static int lagrangeCoefficient(int[] omega, int k) {
         double result = 1.0;
         for(int j : omega) {
             if(j == k) continue;
@@ -95,28 +88,15 @@ public class ThresholdScheme extends Scheme {
         return (int)result;
     }
 
-
-    public Signature Reconstruct(int[] servers, SignatureShare[] signatureShares, DistributedKeys distKeys) {
-        Element first = distKeys.getY()[0];
-        Element second = distKeys.getY()[1];
-        Element third = publicParameters.G.newOneElement().getImmutable();
-        for(int i = 0; i < servers.length; i++) {
-            int server = servers[i];
-            SignatureShare signatureShare = signatureShares[i];
-            BigInteger lagrangeCoeff = BigInteger.valueOf(lagrangeCoefficient(servers, server));
-            first = first.mul(power(signatureShare.getFirst(), lagrangeCoeff)).getImmutable();
-            third = third.mul(power(signatureShare.getSecond(), lagrangeCoeff)).getImmutable();
-        }
-        return new Signature(first, second, third);
-    }
-
-    public Signature Reconstruct(int[] servers, SignatureShare[] signatureShares, Element[] Y) {
+    public static Signature Reconstruct(int[] servers, SignatureShare[] signatureShares, Element[] Y,
+                                        PublicParameters publicParameters) {
         Element first = Y[0];
         Element second = Y[1];
         Element third = publicParameters.G.newOneElement().getImmutable();
         for(int i = 0; i < servers.length; i++) {
-            int server = servers[i];
             SignatureShare signatureShare = signatureShares[i];
+            if(signatureShare == null) return null;
+            int server = servers[i];
             BigInteger lagrangeCoeff = BigInteger.valueOf(lagrangeCoefficient(servers, server));
             first = first.mul(power(signatureShare.getFirst(), lagrangeCoeff)).getImmutable();
             third = third.mul(power(signatureShare.getSecond(), lagrangeCoeff)).getImmutable();
