@@ -1,8 +1,7 @@
 <component name="libraryTable">
   <library name="jpbc-api-2.0.0">
     <CLASSES>
-      <root url="jar://$USER_HOME$/Downloads/jpbc-2.0.0/jars/jpbc-api-2.0.0.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jpbc-2.0.0/jars/jpbc-plaf-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jpbc-api-2.0.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
